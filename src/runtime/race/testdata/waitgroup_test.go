@@ -269,7 +269,7 @@ func TestNoRaceWaitGroupReuse(t *testing.T) {
 	const P = 3
 	var data [P]int
 	var wg sync.WaitGroup
-	for try := 0; try < 3; try++ {
+	for tryc := 0; tryc < 3; tryc++ {
 		wg.Add(P)
 		for p := 0; p < P; p++ {
 			go func(p int) {
@@ -288,7 +288,7 @@ func TestNoRaceWaitGroupReuse2(t *testing.T) {
 	const P = 3
 	var data [P]int
 	var wg sync.WaitGroup
-	for try := 0; try < 3; try++ {
+	for tryc := 0; tryc < 3; tryc++ {
 		wg.Add(P)
 		for p := 0; p < P; p++ {
 			go func(p int) {
@@ -317,7 +317,7 @@ func TestRaceWaitGroupReuse(t *testing.T) {
 	const T = 3
 	done := make(chan bool, T)
 	var wg sync.WaitGroup
-	for try := 0; try < T; try++ {
+	for tryc := 0; tryc < T; tryc++ {
 		var data [P]int
 		wg.Add(P)
 		for p := 0; p < P; p++ {
@@ -337,7 +337,7 @@ func TestRaceWaitGroupReuse(t *testing.T) {
 		time.Sleep(100 * time.Millisecond)
 		wg.Wait()
 	}
-	for try := 0; try < T; try++ {
+	for tryc := 0; tryc < T; tryc++ {
 		<-done
 	}
 }

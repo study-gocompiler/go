@@ -97,13 +97,13 @@ func TestBasics(t *testing.T) {
 func wantEmpty(t testing.TB) {
 	t.Helper()
 	const gcTries = 5000
-	for try := 0; try < gcTries; try++ {
+	for tryc := 0; tryc < gcTries; tryc++ {
 		runtime.GC()
 		n := mapLen()
 		if n == 0 {
 			break
 		}
-		if try == gcTries-1 {
+		if tryc == gcTries-1 {
 			t.Errorf("map len = %d after (%d GC tries); want 0, contents: %v", n, gcTries, mapKeys())
 		}
 	}

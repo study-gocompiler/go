@@ -839,7 +839,7 @@ func TestCancelAfterDial(t *testing.T) {
 		wg.Done()
 	}()
 
-	try := func() {
+	tryc := func() {
 		cancel := make(chan struct{})
 		d := &Dialer{Cancel: cancel}
 		c, err := d.Dial("tcp", ln.Addr().String())
@@ -877,7 +877,7 @@ func TestCancelAfterDial(t *testing.T) {
 
 	// This bug manifested about 50% of the time, so try it a few times.
 	for i := 0; i < 10; i++ {
-		try()
+		tryc()
 	}
 }
 

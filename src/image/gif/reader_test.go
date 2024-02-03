@@ -202,7 +202,7 @@ var testGIF = []byte{
 	0x3b,
 }
 
-func try(t *testing.T, b []byte, want string) {
+func tryc(t *testing.T, b []byte, want string) {
 	_, err := DecodeAll(bytes.NewReader(b))
 	var got string
 	if err != nil {
@@ -220,13 +220,13 @@ func TestBounds(t *testing.T) {
 	// Make the bounds too big, just by one.
 	gif[32] = 2
 	want := "gif: frame bounds larger than image bounds"
-	try(t, gif, want)
+	tryc(t, gif, want)
 
 	// Make the bounds too small; does not trigger bounds
 	// check, but now there's too much data.
 	gif[32] = 0
 	want = "gif: too much image data"
-	try(t, gif, want)
+	tryc(t, gif, want)
 	gif[32] = 1
 
 	// Make the bounds really big, expect an error.
@@ -234,7 +234,7 @@ func TestBounds(t *testing.T) {
 	for i := 0; i < 4; i++ {
 		gif[32+i] = 0xff
 	}
-	try(t, gif, want)
+	tryc(t, gif, want)
 }
 
 func TestNoPalette(t *testing.T) {
@@ -256,7 +256,7 @@ func TestNoPalette(t *testing.T) {
 
 	b.WriteString(trailerStr)
 
-	try(t, b.Bytes(), "gif: no color table")
+	tryc(t, b.Bytes(), "gif: no color table")
 }
 
 func TestPixelOutsidePaletteRange(t *testing.T) {
@@ -283,7 +283,7 @@ func TestPixelOutsidePaletteRange(t *testing.T) {
 		if pval >= 2 {
 			want = "gif: invalid pixel value"
 		}
-		try(t, b.Bytes(), want)
+		tryc(t, b.Bytes(), want)
 	}
 }
 
@@ -314,7 +314,7 @@ func TestTransparentPixelOutsidePaletteRange(t *testing.T) {
 
 	b.WriteString(trailerStr)
 
-	try(t, b.Bytes(), "")
+	tryc(t, b.Bytes(), "")
 }
 
 func TestLoopCount(t *testing.T) {

@@ -93,13 +93,13 @@ func CgoTraceback() {
 }
 
 func CgoCheckBytes() {
-	try, _ := strconv.Atoi(os.Getenv("GO_CGOCHECKBYTES_TRY"))
-	if try <= 0 {
-		try = 1
+	tryc, _ := strconv.Atoi(os.Getenv("GO_CGOCHECKBYTES_TRY"))
+	if tryc <= 0 {
+		tryc = 1
 	}
-	b := make([]byte, 1e6*try)
+	b := make([]byte, 1e6*tryc)
 	start := time.Now()
-	for i := 0; i < 1e3*try; i++ {
+	for i := 0; i < 1e3*tryc; i++ {
 		C.foo2(unsafe.Pointer(&b[0]))
 		if time.Since(start) > time.Second {
 			break

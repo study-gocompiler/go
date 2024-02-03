@@ -703,7 +703,7 @@ func TestGoroutineSwitch(t *testing.T) {
 	if testing.Short() {
 		tries = 1
 	}
-	for try := 0; try < tries; try++ {
+	for tryc := 0; tryc < tries; tryc++ {
 		var prof bytes.Buffer
 		if err := StartCPUProfile(&prof); err != nil {
 			t.Fatal(err)

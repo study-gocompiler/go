@@ -105,8 +105,8 @@ func testPool(t *testing.T, drain bool) {
 	var p Pool
 	const N = 100
 loop:
-	for try := 0; try < 3; try++ {
-		if try == 1 && testing.Short() {
+	for tryc := 0; tryc < 3; tryc++ {
+		if tryc == 1 && testing.Short() {
 			break
 		}
 		var fin, fin1 uint32
@@ -130,7 +130,7 @@ loop:
 				continue loop
 			}
 		}
-		t.Fatalf("only %v out of %v resources are finalized on try %v", fin1, N, try)
+		t.Fatalf("only %v out of %v resources are finalized on try %v", fin1, N, tryc)
 	}
 }
 

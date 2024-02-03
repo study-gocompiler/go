@@ -12,7 +12,7 @@ func isMinimizable(t reflect.Type) bool {
 	return t == reflect.TypeOf("") || t == reflect.TypeOf([]byte(nil))
 }
 
-func minimizeBytes(v []byte, try func([]byte) bool, shouldStop func() bool) {
+func minimizeBytes(v []byte, tryc func([]byte) bool, shouldStop func() bool) {
 	tmp := make([]byte, len(v))
 	// If minimization was successful at any point during minimizeBytes,
 	// then the vals slice in (*workerServer).minimizeInput will point to
@@ -28,7 +28,7 @@ func minimizeBytes(v []byte, try func([]byte) bool, shouldStop func() bool) {
 				return
 			}
 			candidate := v[:len(v)-n]
-			if !try(candidate) {
+			if !tryc(candidate) {
 				break
 			}
 			// Set v to the new value to continue iterating.
@@ -44,7 +44,7 @@ func minimizeBytes(v []byte, try func([]byte) bool, shouldStop func() bool) {
 		candidate := tmp[:len(v)-1]
 		copy(candidate[:i], v[:i])
 		copy(candidate[i:], v[i+1:])
-		if !try(candidate) {
+		if !tryc(candidate) {
 			continue
 		}
 		// Update v to delete the value at index i.
@@ -64,7 +64,7 @@ func minimizeBytes(v []byte, try func([]byte) bool, shouldStop func() bool) {
 			}
 			candidate := tmp[:len(v)-j+i]
 			copy(candidate[i:], v[j:])
-			if !try(candidate) {
+			if !tryc(candidate) {
 				continue
 			}
 			// Update v and reset the loop with the new length.
@@ -84,7 +84,7 @@ func minimizeBytes(v []byte, try func([]byte) bool, shouldStop func() bool) {
 
 		for _, pc := range printableChars {
 			v[i] = pc
-			if try(v) {
+			if tryc(v) {
 				// Successful. Move on to the next byte in v.
 				break
 			}
