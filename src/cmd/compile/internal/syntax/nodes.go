@@ -394,6 +394,12 @@ type (
 		stmt
 	}
 
+	TryStmt struct {
+		Call   *ExprStmt
+		Assign *AssignStmt
+		stmt
+	}
+
 	ReturnStmt struct {
 		Results Expr // nil means no explicit return values
 		stmt

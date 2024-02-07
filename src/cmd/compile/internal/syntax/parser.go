@@ -2418,6 +2418,28 @@ func (p *parser) ifStmt() *IfStmt {
 	return s
 }
 
+func (p *parser) tryStmt() *TryStmt {
+	if trace {
+		defer p.trace("tryStmt")()
+	}
+
+	r := new(TryStmt)
+	r.pos = p.pos()
+	p.next()
+	x := p.simpleStmt(nil, 0)
+
+	switch v := x.(type) {
+	case *ExprStmt:
+		r.Call = v
+	case *AssignStmt:
+		r.Assign = v
+	default:
+		p.syntaxError("wrong try expression")
+	}
+
+	return r
+}
+
 func (p *parser) switchStmt() *SwitchStmt {
 	if trace {
 		defer p.trace("switchStmt")()
@@ -2591,6 +2613,9 @@ func (p *parser) stmtOrNil() Stmt {
 
 	case _If:
 		return p.ifStmt()
+
+	case _Try:
+		return p.tryStmt()
 
 	case _Fallthrough:
 		s := new(BranchStmt)
