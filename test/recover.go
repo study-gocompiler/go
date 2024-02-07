@@ -195,7 +195,7 @@ func test4() {
 
 // Check that closures can set output arguments.
 // Run g().  If it panics, return x; else return deflt.
-func try(g func(), deflt interface{}) (x interface{}) {
+func tryc(g func(), deflt interface{}) (x interface{}) {
 	defer func() {
 		if v := recover(); v != nil {
 			x = v
@@ -219,13 +219,13 @@ func try1(g func(), deflt interface{}) (x interface{}) {
 }
 
 func test5() {
-	v := try(func() { panic(5) }, 55).(int)
+	v := tryc(func() { panic(5) }, 55).(int)
 	if v != 5 {
 		println("wrong value", v, 5)
 		die()
 	}
 
-	s := try(func() {}, "hi").(string)
+	s := tryc(func() {}, "hi").(string)
 	if s != "hi" {
 		println("wrong value", s, "hi")
 		die()
