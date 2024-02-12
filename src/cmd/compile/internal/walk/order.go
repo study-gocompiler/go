@@ -638,6 +638,29 @@ func (o *orderState) stmt(n ir.Node) {
 		o.mapAssign(n)
 		o.popTemp(t)
 
+	case ir.OTRY:
+		// assign
+		tr := n.(*ir.TryStmt)
+		t := o.markTemp()
+		o.exprList(tr.Assign.Lhs)
+		o.exprList(tr.Assign.Rhs)
+		o.out = append(o.out, tr)
+		o.popTemp(t)
+
+		// add if statement
+		varLen := len(tr.Assign.Lhs)
+		errNode := tr.Assign.Lhs[varLen-1]
+		ret := ir.NewReturnStmt(tr.Pos(), nil)
+		nif := ir.NewIfStmt(
+			tr.Pos(),
+			typecheck.Expr(ir.NewBinaryExpr(tr.Pos(), ir.ONE, errNode, typecheck.NodNil())),
+			ir.Nodes{ret},
+			nil,
+		)
+		typecheck.Stmt(nif)
+		typecheck.Stmt(nif.Cond)
+		o.out = append(o.out, nif)
+
 	case ir.OAS2:
 		n := n.(*ir.AssignListStmt)
 		t := o.markTemp()

@@ -734,6 +734,9 @@ func typecheck1(n ir.Node, top int) ir.Node {
 		}
 		return n
 
+	case ir.OTRY:
+		return n
+
 	case ir.OAS2:
 		tcAssignList(n.(*ir.AssignListStmt))
 		return n

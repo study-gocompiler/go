@@ -157,6 +157,10 @@ func (e *escape) stmt(n ir.Node) {
 	case ir.OAS2:
 		n := n.(*ir.AssignListStmt)
 		e.assignList(n.Lhs, n.Rhs, "assign-pair", n)
+		// o.popTemp(t)
+	case ir.OTRY:
+		n := n.(*ir.TryStmt)
+		e.assignList(n.Assign.Lhs, n.Assign.Rhs, "assign-pair", n)
 
 	case ir.OAS2DOTTYPE: // v, ok = x.(type)
 		n := n.(*ir.AssignListStmt)

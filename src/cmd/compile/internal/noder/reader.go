@@ -1718,6 +1718,36 @@ func (r *reader) stmt1(tag codeStmt, out *ir.Nodes) ir.Node {
 	default:
 		panic("unexpected statement")
 
+	case stmtTry:
+		pos := r.pos()
+		names, lhs := r.assignList()
+		rhs := r.multiExpr()
+
+		// TODO: covert these cases
+		if len(rhs) == 0 {
+			fmt.Println(">>>", "TRY CASE 1")
+
+			// for _, name := range names {
+			// 	as := ir.NewAssignStmt(pos, name, nil)
+			// 	as.PtrInit().Append(ir.NewDecl(pos, ir.ODCL, name))
+			// 	out.Append(typecheck.Stmt(as))
+			// }
+			// return nil
+		}
+
+		// // TODO: covert these cases
+		if len(lhs) == 1 && len(rhs) == 1 {
+			fmt.Println(">>>", "TRY CASE 2")
+			// n := ir.NewAssignStmt(pos, lhs[0], rhs[0])
+			// n.Def = r.initDefn(n, names)
+			// return n
+		}
+
+		n := ir.NewAssignListStmt(pos, ir.OAS2, lhs, rhs)
+		n.Def = r.initDefn(n, names)
+		tr := ir.NewTryStmt(pos, n)
+		return tr
+
 	case stmtAssign:
 		pos := r.pos()
 		names, lhs := r.assignList()

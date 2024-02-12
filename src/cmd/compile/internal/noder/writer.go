@@ -1222,6 +1222,11 @@ func (w *writer) stmt1(stmt syntax.Stmt) {
 	case nil, *syntax.EmptyStmt:
 		return
 
+	case *syntax.TryStmt:
+		assign := stmt.Assign
+		w.Code(stmtTry)
+		w.assignTryStmt(stmt, assign.Lhs, assign.Rhs)
+
 	case *syntax.AssignStmt:
 		switch {
 		case stmt.Rhs == nil:
@@ -1360,6 +1365,42 @@ func (w *writer) declStmt(decl syntax.Decl) {
 	case *syntax.VarDecl:
 		w.assignStmt(decl, namesAsExpr(decl.NameList), decl.Values)
 	}
+}
+
+func (w *writer) assignTryStmt(pos poser, lhs0, rhs0 syntax.Expr) {
+	lhs := unpackListExpr(lhs0)
+	rhs := unpackListExpr(rhs0)
+
+	w.pos(pos)
+
+	// As if w.assignList(lhs0).
+	w.Len(len(lhs))
+	for _, expr := range lhs {
+		w.assign(expr)
+	}
+
+	dstType := func(i int) types2.Type {
+		dst := lhs[i]
+
+		// Finding dstType is somewhat involved, because for VarDecl
+		// statements, the Names are only added to the info.{Defs,Uses}
+		// maps, not to info.Types.
+		if name, ok := unparen(dst).(*syntax.Name); ok {
+			if name.Value == "_" {
+				return nil // ok: no implicit conversion
+			} else if def, ok := w.p.info.Defs[name].(*types2.Var); ok {
+				return def.Type()
+			} else if use, ok := w.p.info.Uses[name].(*types2.Var); ok {
+				return use.Type()
+			} else {
+				w.p.fatalf(dst, "cannot find type of destination object: %v", dst)
+			}
+		}
+
+		return w.p.typeOf(dst)
+	}
+
+	w.multiExpr(pos, dstType, rhs)
 }
 
 // assignStmt writes out an assignment for "lhs = rhs".

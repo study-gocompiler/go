@@ -32,6 +32,32 @@ func walkStmt(n ir.Node) ir.Node {
 		ir.Dump("nottop", n)
 		return n
 
+	case ir.OTRY:
+		tr := n.(*ir.TryStmt)
+
+		if n.Typecheck() == 0 {
+			base.Fatalf("missing typecheck: %+v", n)
+		}
+		init := ir.TakeInit(tr.Assign)
+		n = walkExpr(n, &init)
+		if n.Op() == ir.ONAME {
+			// copy rewrote to a statement list and a temp for the length.
+			// Throw away the temp to avoid plain values as statements.
+			n = ir.NewBlockStmt(n.Pos(), init)
+			init = nil
+		}
+		if len(init) > 0 {
+			switch n.Op() {
+			case ir.OAS, ir.OAS2, ir.OBLOCK:
+				n.(ir.InitNode).PtrInit().Prepend(init...)
+
+			default:
+				init.Append(n)
+				n = ir.NewBlockStmt(n.Pos(), init)
+			}
+		}
+		return n
+
 	case ir.OAS,
 		ir.OASOP,
 		ir.OAS2,

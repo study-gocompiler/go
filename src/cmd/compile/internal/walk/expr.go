@@ -195,6 +195,10 @@ func walkExpr1(n ir.Node, init *ir.Nodes) ir.Node {
 		n := n.(*ir.AssignListStmt)
 		return walkAssignList(init, n)
 
+	case ir.OTRY:
+		tr := n.(*ir.TryStmt)
+		return walkAssignList(init, tr.Assign)
+
 	// a,b,... = fn()
 	case ir.OAS2FUNC:
 		n := n.(*ir.AssignListStmt)

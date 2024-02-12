@@ -669,6 +669,67 @@ func (check *Checker) stmt(ctxt stmtContext, s syntax.Stmt) {
 			check.use(s.Lhs) // avoid follow-up errors
 		}
 		check.stmt(inner, s.Body)
+	case *syntax.TryStmt:
+		call := s.Call
+		assign := s.Assign
+		if call != nil {
+			var x operand
+			kind := check.rawExpr(nil, &x, call.X, nil, false)
+			var msg string
+			var code Code
+			switch x.mode {
+			default:
+				if kind == statement {
+					return
+				}
+				msg = "is not used"
+				code = UnusedExpr
+			case builtin:
+				msg = "must be called"
+				code = UncalledBuiltin
+			case typexpr:
+				msg = "is not an expression"
+				code = NotAnExpr
+			}
+			check.errorf(&x, code, "%s %s", &x, msg)
+		} else {
+			if assign.Rhs == nil {
+				// x++ or x--
+				// (no need to call unpackExpr as s.Lhs must be single-valued)
+				var x operand
+				check.expr(nil, &x, assign.Lhs)
+				if x.mode == invalid {
+					return
+				}
+				if !allNumeric(x.typ) {
+					check.errorf(assign.Lhs, NonNumericIncDec, invalidOp+"%s%s%s (non-numeric type %s)", assign.Lhs, assign.Op, assign.Op, x.typ)
+					return
+				}
+				check.assignVar(assign.Lhs, nil, &x)
+				return
+			}
+
+			lhs := unpackExpr(assign.Lhs)
+			rhs := unpackExpr(assign.Rhs)
+			switch assign.Op {
+			case 0:
+				check.assignVars(lhs, rhs)
+				return
+			case syntax.Def:
+				check.shortVarDecl(assign.Pos(), lhs, rhs)
+				return
+			}
+
+			// assignment operations
+			if len(lhs) != 1 || len(rhs) != 1 {
+				check.errorf(s, MultiValAssignOp, "assignment operation %s requires single-valued expressions", assign.Op)
+				return
+			}
+
+			var x operand
+			check.binary(&x, nil, lhs[0], rhs[0], assign.Op)
+			check.assignVar(lhs[0], nil, &x)
+		}
 
 	default:
 		check.error(s, InvalidSyntaxTree, "invalid statement")

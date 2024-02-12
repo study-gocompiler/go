@@ -241,6 +241,36 @@ var comms = []test{
 	{"CommClause", `@default: ch <- true`},
 }
 
+// func extractIf(src string) *IfStmt {
+// 	// build syntax tree
+// 	file, err := Parse(nil, strings.NewReader(src), nil, nil, 0)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	conf := types2.Config{}
+// 	if _, err := conf.Check("", []*File{file}, nil); err != nil {
+// 		panic(err)
+// 	}
+
+// 	// extract desired node
+// 	e := func(f *File) Node { return f.DeclList[0].(*FuncDecl).Body.List[0] }
+// 	node := e(file)
+// 	switch v := node.(type) {
+// 	case *IfStmt:
+// 		return v
+// 	default:
+// 		return nil
+// 	}
+// }
+
+// func TestIf(t *testing.T) {
+// 	src := `package p; func _() { if err != nil { fmt.Println(err) }; }`
+// 	ifv := extractIf(src)
+// 	fmt.Println(">>>", ifv.Cond.GetTypeInfo())
+
+// }
+
 func TestPos(t *testing.T) {
 	// TODO(gri) Once we have a general tree walker, we can use that to find
 	// the first occurrence of the respective node and we don't need to hand-
@@ -303,6 +333,12 @@ func testPos(t *testing.T, list []test, prefix, suffix string, extract func(*Fil
 
 		// extract desired node
 		node := extract(file)
+		switch v := node.(type) {
+		case *IfStmt:
+			fmt.Println(">>>", v.Cond)
+
+		}
+
 		if typ := typeOf(node); typ != test.nodetyp {
 			t.Errorf("type error: %s: type = %s, want %s", src, typ, test.nodetyp)
 			continue
