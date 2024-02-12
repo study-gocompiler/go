@@ -197,7 +197,16 @@ func walkExpr1(n ir.Node, init *ir.Nodes) ir.Node {
 
 	case ir.OTRY:
 		tr := n.(*ir.TryStmt)
-		return walkAssignList(init, tr.Assign)
+
+		switch a := tr.Assign.(type) {
+		case *ir.AssignStmt:
+			return walkAssign(init, a)
+		case *ir.AssignListStmt:
+			return walkAssignList(init, a)
+		default:
+			base.Fatalf("unsupported assign")
+			panic("unreachable")
+		}
 
 	// a,b,... = fn()
 	case ir.OAS2FUNC:

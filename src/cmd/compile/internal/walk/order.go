@@ -639,17 +639,26 @@ func (o *orderState) stmt(n ir.Node) {
 		o.popTemp(t)
 
 	case ir.OTRY:
-		// assign
 		tr := n.(*ir.TryStmt)
-		t := o.markTemp()
-		o.exprList(tr.Assign.Lhs)
-		o.exprList(tr.Assign.Rhs)
-		o.out = append(o.out, tr)
-		o.popTemp(t)
+		var errNode ir.Node
+		switch a := tr.Assign.(type) {
+		case *ir.AssignStmt:
+			errNode = a.X
+			t := o.markTemp()
+			a.X = o.expr(a.X, nil)
+			a.Y = o.expr(a.Y, a.X)
+			o.out = append(o.out, tr)
+			o.popTemp(t)
+		case *ir.AssignListStmt:
+			errNode = a.Lhs[len(a.Lhs)-1]
+			t := o.markTemp()
+			o.exprList(a.Lhs)
+			o.exprList(a.Rhs)
+			o.out = append(o.out, tr)
+			o.popTemp(t)
+		}
 
-		// add if statement
-		varLen := len(tr.Assign.Lhs)
-		errNode := tr.Assign.Lhs[varLen-1]
+		// if err != nil { return }
 		ret := ir.NewReturnStmt(tr.Pos(), nil)
 		nif := ir.NewIfStmt(
 			tr.Pos(),

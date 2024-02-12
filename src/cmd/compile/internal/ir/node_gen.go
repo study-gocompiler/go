@@ -1653,13 +1653,13 @@ func (n *TryStmt) doChildren(do func(Node) bool) bool {
 func (n *TryStmt) editChildren(edit func(Node) Node) {
 	editNodes(n.init, edit)
 	if n.Assign != nil {
-		n.Assign = edit(n.Assign).(*AssignListStmt)
+		n.Assign = edit(n.Assign).(Node)
 	}
 }
 func (n *TryStmt) editChildrenWithHidden(edit func(Node) Node) {
 	editNodes(n.init, edit)
 	if n.Assign != nil {
-		n.Assign = edit(n.Assign).(*AssignListStmt)
+		n.Assign = edit(n.Assign).(Node)
 	}
 }
 
