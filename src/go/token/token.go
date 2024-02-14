@@ -122,6 +122,7 @@ const (
 	STRUCT
 	SWITCH
 	TYPE
+	TRY
 	VAR
 	keyword_end
 
@@ -231,6 +232,8 @@ var tokens = [...]string{
 	VAR:    "var",
 
 	TILDE: "~",
+
+	TRY: "try",
 }
 
 // String returns the string corresponding to the token tok.

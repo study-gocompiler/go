@@ -465,6 +465,39 @@ func (check *Checker) stmt(ctxt stmtContext, s ast.Stmt) {
 		}
 		check.assignVar(s.X, nil, &x)
 
+	case *ast.TryStmt:
+		switch s.Assign.Tok {
+		case token.ASSIGN, token.DEFINE:
+			if len(s.Assign.Lhs) == 0 {
+				check.error(s, InvalidSyntaxTree, "missing lhs in assignment")
+				return
+			}
+			if s.Assign.Tok == token.DEFINE {
+				check.shortVarDecl(inNode(s, s.Assign.TokPos), s.Assign.Lhs, s.Assign.Rhs)
+			} else {
+				// regular assignment
+				check.assignVars(s.Assign.Lhs, s.Assign.Rhs)
+			}
+
+		default:
+			// assignment operations
+			if len(s.Assign.Lhs) != 1 || len(s.Assign.Rhs) != 1 {
+				check.errorf(inNode(s, s.Assign.TokPos), MultiValAssignOp, "assignment operation %s requires single-valued expressions", s.Assign.Tok)
+				return
+			}
+			op := assignOp(s.Assign.Tok)
+			if op == token.ILLEGAL {
+				check.errorf(atPos(s.Assign.TokPos), InvalidSyntaxTree, "unknown assignment operation %s", s.Assign.Tok)
+				return
+			}
+			var x operand
+			check.binary(&x, nil, s.Assign.Lhs[0], s.Assign.Rhs[0], op, s.Assign.TokPos)
+			if x.mode == invalid {
+				return
+			}
+			check.assignVar(s.Assign.Lhs[0], nil, &x)
+		}
+
 	case *ast.AssignStmt:
 		switch s.Tok {
 		case token.ASSIGN, token.DEFINE:

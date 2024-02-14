@@ -424,6 +424,7 @@ var stmtStart = map[token.Token]bool{
 	token.SWITCH:      true,
 	token.TYPE:        true,
 	token.VAR:         true,
+	token.TRY:         true,
 }
 
 var declStart = map[token.Token]bool{
@@ -2024,6 +2025,24 @@ func (p *parser) parseBranchStmt(tok token.Token) *ast.BranchStmt {
 	return &ast.BranchStmt{TokPos: pos, Tok: tok, Label: label}
 }
 
+func (p *parser) parseTryStmt() ast.Stmt {
+	if p.trace {
+		defer un(trace(p, "TryStmt"))
+	}
+
+	pos := p.expect(token.TRY)
+
+	r, _ := p.parseSimpleStmt(basic)
+	p.expectSemi()
+
+	v, ok := r.(*ast.AssignStmt)
+	if ok {
+		return &ast.TryStmt{Try: pos, Assign: v}
+	}
+
+	return &ast.BadStmt{From: pos, To: pos + 3} // len("try")
+}
+
 func (p *parser) makeExpr(s ast.Stmt, want string) ast.Expr {
 	if s == nil {
 		return nil
@@ -2412,6 +2431,8 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		s = p.parseGoStmt()
 	case token.DEFER:
 		s = p.parseDeferStmt()
+	case token.TRY:
+		s = p.parseTryStmt()
 	case token.RETURN:
 		s = p.parseReturnStmt()
 	case token.BREAK, token.CONTINUE, token.GOTO, token.FALLTHROUGH:

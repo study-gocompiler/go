@@ -222,6 +222,10 @@ func Walk(v Visitor, node Node) {
 	case *DeferStmt:
 		Walk(v, n.Call)
 
+	case *TryStmt:
+		walkExprList(v, n.Assign.Lhs)
+		walkExprList(v, n.Assign.Rhs)
+
 	case *ReturnStmt:
 		walkExprList(v, n.Results)
 

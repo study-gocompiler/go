@@ -670,6 +670,11 @@ type (
 		Call  *CallExpr
 	}
 
+	TryStmt struct {
+		Try    token.Pos // position of "try" keyword
+		Assign *AssignStmt
+	}
+
 	// A ReturnStmt node represents a return statement.
 	ReturnStmt struct {
 		Return  token.Pos // position of "return" keyword
@@ -772,6 +777,7 @@ func (s *IncDecStmt) Pos() token.Pos     { return s.X.Pos() }
 func (s *AssignStmt) Pos() token.Pos     { return s.Lhs[0].Pos() }
 func (s *GoStmt) Pos() token.Pos         { return s.Go }
 func (s *DeferStmt) Pos() token.Pos      { return s.Defer }
+func (s *TryStmt) Pos() token.Pos        { return s.Try }
 func (s *ReturnStmt) Pos() token.Pos     { return s.Return }
 func (s *BranchStmt) Pos() token.Pos     { return s.TokPos }
 func (s *BlockStmt) Pos() token.Pos      { return s.Lbrace }
@@ -797,6 +803,9 @@ func (s *ExprStmt) End() token.Pos    { return s.X.End() }
 func (s *SendStmt) End() token.Pos    { return s.Value.End() }
 func (s *IncDecStmt) End() token.Pos {
 	return s.TokPos + 2 /* len("++") */
+}
+func (s *TryStmt) End() token.Pos {
+	return s.Try + 3
 }
 func (s *AssignStmt) End() token.Pos { return s.Rhs[len(s.Rhs)-1].End() }
 func (s *GoStmt) End() token.Pos     { return s.Call.End() }
@@ -869,6 +878,7 @@ func (*CommClause) stmtNode()     {}
 func (*SelectStmt) stmtNode()     {}
 func (*ForStmt) stmtNode()        {}
 func (*RangeStmt) stmtNode()      {}
+func (*TryStmt) stmtNode()        {}
 
 // ----------------------------------------------------------------------------
 // Declarations
