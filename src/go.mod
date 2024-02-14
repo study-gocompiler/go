@@ -12,4 +12,4 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 )
 
-replace golang.org/x/net => ../../net
+replace golang.org/x/net => github.com/study-gocompiler/net v0.0.0-20240213154258-9dc1f2150124
