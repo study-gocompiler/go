@@ -30,7 +30,7 @@ func sampleFn() (v int, err error) { // Remember to use named return params for 
 
 Compiler will expand `try` to
 
-```
+``` go
     v, err := testFn(errors.New("test error"))
     if err != nil {
         return
