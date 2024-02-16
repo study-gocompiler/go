@@ -1,3 +1,53 @@
+# Golang complier study
+
+Hi all. This golang fork adds `try` keyword to golang compiler so you do not need to write ```if err != nil ``` every time.
+``` go
+    try file, err := parser.ParseFile(path)
+    fmt.Println(file) 
+```
+
+
+## Usage:
+
+1. Clone this repo.
+2. Build compiler with all.bash
+3. Compile code with new compiler:
+
+```
+~/code/go/bin/go build
+```
+
+``` go
+func testFn(err error) (int, error) {
+    return 99, err
+}
+
+func sampleFn() (v int, err error) { // Remember to use named return params for "try" to work properly
+    try v, err := testFn(errors.New("test error"))
+    panic("not this time")
+}
+```
+
+Compiler will expand `try` to
+
+```
+    v, err := testFn(errors.New("test error"))
+    if err != nil {
+        return
+    }
+```
+
+## gopls
+
+If you like to add support to gopls just compile gotools fork and move to bin dir.
+
+```
+git clone git@github.com:study-gocompiler/gotools.git
+cd gotools/gopls
+~/code/go/bin/go build
+mv gopls TO bin
+```
+
 # The Go Programming Language
 
 Go is an open source programming language that makes it easy to build simple,
